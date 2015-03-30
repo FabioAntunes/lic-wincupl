@@ -1,0 +1,77 @@
+Name     DECKBD ;
+PartNo   00 ;
+Date     06/03/2015 ;
+Revision 01 ;
+Designer Engineer ;
+Company  CCISEL ;
+Assembly None ;
+Location  ;
+Device   v750c ;
+
+/* *************** INPUT PINS *********************/
+PIN 1 = CLK;
+PIN 2 = MCLK;
+PIN 3 = K_OE;
+PIN 4 = K_ACK;
+PIN [5..8]= [Mux0..3];
+
+/* *************** OUTPUT PINS *********************/
+PIN [14..17] = [COL0..3];
+PIN [18] = K_SCAN;
+PIN [19] = K_VAL;
+PIN [20..23] = [K0..3] ;
+
+
+
+/* *************** Pin nodes *****************/
+PINNODE [28,29]    = [X0,X1];
+
+/* *************** Modulo Contador *****************/
+[K0..3].sp = 'b'0;
+[K0..3].ar = 'b'0;
+[K0..3].ck = CLK;
+
+CE = K_SCAN;
+
+K0.d = CE $ K0 ;
+K1.d = (CE & K0) $ K1 ;
+K2.d = (CE & K0 & K1) $ K2 ;
+K3.d = (CE & K0 & K1 & K2) $ K3 ;
+
+[Mux_S0..1] = [K0..1];
+[Dec_S0..1] = [K2..3];
+
+
+/* *************** Decoder **********************/
+Dec0 = !Dec_S0 & !Dec_S1;
+Dec1 = Dec_S0 & !Dec_S1;
+Dec2 = !Dec_S0 & Dec_S1;
+Dec3 = Dec_S0 & Dec_S1;
+
+[COL0..COL3] = ![Dec0..Dec3];
+
+/* *************** Encoder **********************/
+keypress = !(Mux0 & !Mux_S0 & !Mux_S1 # Mux1 & Mux_S0 & !Mux_S1 # Mux2 & !Mux_S0 & Mux_S1 # Mux_S0 & Mux_S1);
+
+/***** Estados ****/
+
+
+[X0, X1].sp = 'b'0 ;
+[X0, X1].ar = 'b'0 ;
+[X0, X1].ck = MCLK ;
+
+Sequence [X1,X0]{
+
+Present 'b'00
+	out K_SCAN ;
+	if keypress next 'b'01 ;
+	default next 'b'00 ;
+Present 'b'01
+	out K_VAL ;
+	if K_ACK next 'b'10 ;
+	default next 'b'01 ;
+
+Present 'b'10
+	if !keypress & !K_ACK next 'b'00;
+	default next 'b'10;
+}

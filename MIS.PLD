@@ -1,0 +1,45 @@
+Name     MIS;
+PartNo   00 ;
+Date     27/03/2015 ;
+Revision 01 ;
+Designer Engineer ;
+Company  CCISEL ;
+Assembly None ;
+Location  ;
+Device   v750c ;
+
+/* *************** INPUT PINS *********************/
+PIN 1 = MICK;
+PIN 2 = MIXD;
+PIN [3..6] = [ADDR0..ADDR3];
+/* *************** OUTPUT PINS *********************/
+PIN [14..23] = [D0..D9];
+
+/* *************** DMUX **********************/
+DMUX0 = !ADDR0 & !ADDR1 & !ADDR2 & !ADDR3;
+DMUX1 = ADDR0 & !ADDR1 & !ADDR2 & !ADDR3;
+DMUX2 = !ADDR0 & ADDR1 & !ADDR2 & !ADDR3;
+DMUX3 = ADDR0 & ADDR1 & !ADDR2 & !ADDR3;
+DMUX4 = !ADDR0 & !ADDR1 & ADDR2 & !ADDR3;
+DMUX5 = ADDR0 & !ADDR1 & ADDR2 & !ADDR3;
+DMUX6 = !ADDR0 & ADDR1 & ADDR2 & !ADDR3;
+DMUX7 = ADDR0 & ADDR1 & ADDR2 & !ADDR3;
+DMUX8 = !ADDR0 & !ADDR1 & !ADDR2 & ADDR3;
+DMUX9 = ADDR0 & !ADDR1 & !ADDR2 & ADDR3;
+
+/* *************** MUXs **********************/
+
+[D0..D9].sp = 'b'0;
+[D0..D9].ar = 'b'0;
+[D0..D9].ck = MICK;
+
+D0.d = DMUX0 & MIXD # !DMUX0 & D0;
+D1.d = DMUX1 & MIXD # !DMUX1 & D1;
+D2.d = DMUX2 & MIXD # !DMUX2 & D2;
+D3.d = DMUX3 & MIXD # !DMUX3 & D3;
+D4.d = DMUX4 & MIXD # !DMUX4 & D4;
+D5.d = DMUX5 & MIXD # !DMUX5 & D5;
+D6.d = DMUX6 & MIXD # !DMUX6 & D6;
+D7.d = DMUX7 & MIXD # !DMUX7 & D7;
+D8.d = DMUX8 & MIXD # !DMUX8 & D8;
+D9.d = DMUX9 & MIXD # !DMUX9 & D9;
