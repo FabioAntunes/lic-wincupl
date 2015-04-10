@@ -1,0 +1,81 @@
+Name     MIS;
+PartNo   00 ;
+Date     27/03/2015 ;
+Revision 01 ;
+Designer Engineer ;
+Company  CCISEL ;
+Assembly None ;
+Location  ;
+Device   v750c ;
+
+/* *************** INPUT PINS *********************/
+PIN 1 = MCLK;
+PIN 2 = MICK;
+PIN 3 = MIXD;
+PIN 4 = ACCEPT;
+PIN 5 = LNP;
+
+/* *************** OUTPUT PINS ********************/
+PIN 14 = START;
+PIN 15 = DXVAL;
+PIN [16..17] = [MSTART0,MSTART1];
+PIN [18]     = [MCONTROLO0];
+PIN [19..22] = [ADDRESS0..3];
+
+/* *************** Pin nodes *****************/
+/** PINNODE [28,29]  = [MSTART0,MSTART1];
+PINNODE [30]     = [MCONTROLO0];**/
+
+/* ************** MODULO START ********************/
+[MSTART0..1].sp = 'b'0;
+[MSTART0..1].ar = 'b'0;
+[MSTART0..1].ck = MCLK;
+
+/* *************** ESTADOS *****************/
+
+Sequence [MSTART1,MSTART0]{
+
+Present 'b'0
+	if !MICK & MIXD next 'b'1 ;
+	default next 'b'0 ;
+Present 'b'1
+	if !MICK & !MIXD next 'b'10 ;
+	if MICK next 'b'0 ;
+	default next 'b'1;
+Present 'b'10
+	out START;
+	default next 'b'0;
+}
+
+/* *************** Modulo Contador *****************/
+[ADDRESS0..3].sp = 'b'0;
+[ADDRESS0..3].ar = START;
+[ADDRESS0..3].ck = !MICK;
+
+
+ADDRESS0.d = 'b'1 $ ADDRESS0 ;
+ADDRESS1.d = ADDRESS0 $ ADDRESS1 ;
+ADDRESS2.d = (ADDRESS0 & ADDRESS1) $ ADDRESS2 ;
+ADDRESS3.d = (ADDRESS0 & ADDRESS1 & ADDRESS2) $ ADDRESS3 ;
+
+/* ************** MODULO CONTROLADOR ********************/
+[MCONTROLO0].sp = 'b'0;
+[MCONTROLO0].ar = 'b'0;
+[MCONTROLO0].ck = MCLK;
+
+
+/* *************** ESTADOS *****************/
+
+Sequence [MSTART0]{
+
+Present 'b'0
+	if !MICK & MIXD next 'b'1 ;
+	default next 'b'0 ;
+Present 'b'01
+	if !MICK & !MIXD next 'b'10 ;
+	if MICK next 'b'0 ;
+	default next 'b'1;
+Present 'b'10
+	out START;
+	default next 'b'0;
+}
