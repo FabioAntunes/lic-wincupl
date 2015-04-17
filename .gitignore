@@ -2,3 +2,5 @@
 *.jed
 *.lst
 *.pdf
+*.abs
+*.sim

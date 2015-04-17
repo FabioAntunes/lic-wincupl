@@ -13,18 +13,20 @@ PIN 1 = MCLK;
 PIN 2 = MICK;
 PIN 3 = MIXD;
 PIN 4 = ACCEPT;
-PIN 5 = LNP;
+PIN 5 = LNP;	
 
 /* *************** OUTPUT PINS ********************/
 PIN 14 = START;
 PIN 15 = DXVAL;
-PIN [16..17] = [MSTART0,MSTART1];
-PIN [18]     = [MCONTROLO0];
-PIN [19..22] = [ADDRESS0..3];
+PIN 16 = EQUAL3;
+PIN 17 = EQUAL9;
+/*PIN [16..17] = [MSTART0,MSTART1];*/
+PIN [18..19] = [COISOLO0..1];
+PIN [20..23] = [ADDRESS0..3];
 
 /* *************** Pin nodes *****************/
-/** PINNODE [28,29]  = [MSTART0,MSTART1];
-PINNODE [30]     = [MCONTROLO0];**/
+PINNODE [27..28]  = [MSTART0..1];
+PINNODE [29..30]  = [MCONTROLO0..1];
 
 /* ************** MODULO START ********************/
 [MSTART0..1].sp = 'b'0;
@@ -58,24 +60,28 @@ ADDRESS1.d = ADDRESS0 $ ADDRESS1 ;
 ADDRESS2.d = (ADDRESS0 & ADDRESS1) $ ADDRESS2 ;
 ADDRESS3.d = (ADDRESS0 & ADDRESS1 & ADDRESS2) $ ADDRESS3 ;
 
-/* ************** MODULO CONTROLADOR ********************/
-[MCONTROLO0].sp = 'b'0;
-[MCONTROLO0].ar = 'b'0;
-[MCONTROLO0].ck = MCLK;
 
+/* ************** MODULO CONTROLADOR ********************/
+[MCONTROLO0..1].sp = 'b'0;
+[MCONTROLO0..1].ar = 'b'0;
+[MCONTROLO0..1].ck = !MCLK;
+
+EQUAL9 = ADDRESS3 & !ADDRESS2 & !ADDRESS1 & ADDRESS0;
+EQUAL3 = !ADDRESS3 & !ADDRESS2 & ADDRESS1 & ADDRESS0;
 
 /* *************** ESTADOS *****************/
+[COISOLO0..1] = [MCONTROLO0..1];
 
-Sequence [MSTART0]{
+Sequence [MCONTROLO1,MCONTROLO0]{
 
 Present 'b'0
-	if !MICK & MIXD next 'b'1 ;
-	default next 'b'0 ;
-Present 'b'01
-	if !MICK & !MIXD next 'b'10 ;
-	if MICK next 'b'0 ;
-	default next 'b'1;
-Present 'b'10
-	out START;
+	if START next 'b'1;
 	default next 'b'0;
+Present 'b'1
+	if MICK & LNP & EQUAL9 # MICK & !LNP & EQUAL3 next 'b'10 ;
+	default next 'b'1 ;
+Present 'b'10
+	out DXVAL;
+	if ACCEPT next 'b'0;
+	default next 'b'10;
 }
