@@ -1,4 +1,4 @@
-Name     MIS;
+Name     Serial Receiver;
 PartNo   00 ;
 Date     27/03/2015 ;
 Revision 01 ;
@@ -20,8 +20,6 @@ PIN 14 = START;
 PIN 15 = DXVAL;
 PIN 16 = EQUAL3;
 PIN 17 = EQUAL9;
-/*PIN [16..17] = [MSTART0,MSTART1];*/
-PIN [18..19] = [COISOLO0..1];
 PIN [20..23] = [ADDRESS0..3];
 
 /* *************** Pin nodes *****************/
@@ -57,8 +55,8 @@ Present 'b'10
 
 ADDRESS0.d = 'b'1 $ ADDRESS0 ;
 ADDRESS1.d = ADDRESS0 $ ADDRESS1 ;
-ADDRESS2.d = (ADDRESS0 & ADDRESS1) $ ADDRESS2 ;
-ADDRESS3.d = (ADDRESS0 & ADDRESS1 & ADDRESS2) $ ADDRESS3 ;
+ADDRESS2.d = ADDRESS0 & ADDRESS1 $ ADDRESS2 ;
+ADDRESS3.d = ADDRESS0 & ADDRESS1 & ADDRESS2 $ ADDRESS3 ;
 
 
 /* ************** MODULO CONTROLADOR ********************/
@@ -70,7 +68,6 @@ EQUAL9 = ADDRESS3 & !ADDRESS2 & !ADDRESS1 & ADDRESS0;
 EQUAL3 = !ADDRESS3 & !ADDRESS2 & ADDRESS1 & ADDRESS0;
 
 /* *************** ESTADOS *****************/
-[COISOLO0..1] = [MCONTROLO0..1];
 
 Sequence [MCONTROLO1,MCONTROLO0]{
 
