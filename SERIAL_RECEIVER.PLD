@@ -3,7 +3,7 @@ PartNo   00 ;
 Date     27/03/2015 ;
 Revision 01 ;
 Designer Engineer ;
-Company  CCISEL ;
+Company  CCISEL ;	
 Assembly None ;
 Location  ;
 Device   v750c ;
@@ -11,21 +11,24 @@ Device   v750c ;
 /* *************** INPUT PINS *********************/
 PIN 1 = MCLK;
 PIN 2 = MICK;
-PIN 3 = MIXD;
-PIN 4 = ACCEPT;
-PIN 5 = LNP;
-PIN 6 = ANF;
+PIN 3 = LnP;
+PIN 4 = MIXD;
+PIN 5 = AnF;
+PIN 6 = PA;
+PIN 7 = PF;
 
 /* *************** OUTPUT PINS ********************/
 PIN 14 = START;
-PIN 15 = DXVAL;
-/* PIN 16 = EQUAL3;
-PIN 17 = EQUAL9;*/
+PIN 15 = MIBy;
+PIN 16 = WrL;
+PIN 17 = AP;
+PIN 18 = FP;
 PIN [20..23] = [ADDRESS0..3];
 
 /* *************** Pin nodes *****************/
 PINNODE [27..28]  = [MSTART0..1];
-PINNODE 29  = MCONTROLO0;
+PINNODE [29..30]  = [MCONTROLO0..1];
+PINNODE [31..32] = [MDISPATCHER0..1];
 
 /* ************** MODULO START ********************/
 [MSTART0..1].sp = 'b'0;
@@ -34,7 +37,7 @@ PINNODE 29  = MCONTROLO0;
 
 /* *************** ESTADOS *****************/
 
-Sequence [MSTART1,MSTART0]{
+Sequence [MSTART1..0]{
 
 Present 'b'0
 	if !MICK & MIXD next 'b'1 ;
@@ -61,22 +64,53 @@ ADDRESS3.d = ADDRESS0 & ADDRESS1 & ADDRESS2 $ ADDRESS3 ;
 
 
 /* ************** MODULO CONTROLADOR ********************/
-MCONTROLO.sp = 'b'0;
-MCONTROLO0.ar = START;
-MCONTROLO0.ck = !MCLK;
+[MCONTROLO0..1].sp = 'b'0;
+[MCONTROLO0..1].ar = START;
+[MCONTROLO0..1].ck = !MCLK;
 
 EQUAL9 = ADDRESS3 & !ADDRESS2 & !ADDRESS1 & ADDRESS0;
 EQUAL3 = !ADDRESS3 & !ADDRESS2 & ADDRESS1 & ADDRESS0;
 
 /* *************** ESTADOS *****************/
 
-Sequence MCONTROLO0{
+Sequence [MCONTROLO0..1]{
 
 Present 'b'0
-	if MICK & LNP & EQUAL9 # MICK & !LNP & EQUAL3 next 'b'1 ;
+	if MICK & LnP & EQUAL9 # MICK & !LnP & EQUAL3 next 'b'1 ;
 	default next 'b'0 ;
 Present 'b'1
 	out DXVAL;
-	if ACCEPT next 'b'0;
-	default next 'b'1;
+	default next 'b'10;
+Present 'b'10
+	if !ACCEPT out MIBy;
+	default next 'b'10;
+}
+
+/* ************** MODULO DISPATCHER ********************/
+[MDISPATCHER0..1].sp = 'b'0;
+[MDISPATCHER0..1].ar = 'b'0;
+[MDISPATCHER0..1].ck = MCLK;
+
+/* *************** ESTADOS *****************/
+
+Sequence [MDISPATCHER0..1]{
+
+Present 'b'0
+	out ACCEPT;
+	if DXVAL & LnP next 'b'1;
+	if DXVAL & !LnP & AnF & !PA next 'b'10;
+	if DXVAL & !LnP & !AnF & !PF next 'b'11;
+	default next 'b'0;
+Present 'b'1
+	out WrL;
+	default next 'b'0;	
+Present 'b'10
+	out AP;
+	if PA next 'b'0;
+	default next 'b'10;	
+Present 'b'11
+	out FP;
+	if PF next 'b'0;
+	default next 'b'11;	
+	
 }
