@@ -18,7 +18,7 @@ PIN 6 = LnP;
 PIN 7 = AnF;
 
 /* *************** OUTPUT PINS ********************/
-PIN 14 = START;
+PIN 14 = DXVAL;
 PIN 15 = MIBy;
 PIN 16 = WrL;
 PIN 17 = AP;
