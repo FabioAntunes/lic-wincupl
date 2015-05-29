@@ -39,16 +39,16 @@ PINNODE [31..32] = [MDISPATCHER0..1];
 
 Sequence [MSTART1..0]{
 
-Present 'b'0
-	if !MICK & MIXD next 'b'1 ;
-	default next 'b'0 ;
-Present 'b'1
+Present 'b'00
+	if !MICK & MIXD next 'b'01 ;
+	default next 'b'00 ;
+Present 'b'01
 	if !MICK & !MIXD next 'b'10 ;
-	if MICK next 'b'0 ;
-	default next 'b'1;
+	if MICK next 'b'00 ;
+	default next 'b'01;
 Present 'b'10
 	out START;
-	default next 'b'0;
+	default next 'b'00;
 }
 
 /* *************** Modulo Contador *****************/
@@ -66,19 +66,19 @@ ADDRESS3.d = ADDRESS0 & ADDRESS1 & ADDRESS2 $ ADDRESS3 ;
 /* ************** MODULO CONTROLADOR ********************/
 [MCONTROLO0..1].sp = 'b'0;
 [MCONTROLO0..1].ar = START;
-[MCONTROLO0..1].ck = !MCLK;
+[MCONTROLO0..1].ck = MCLK;
 
 EQUAL9 = ADDRESS3 & !ADDRESS2 & !ADDRESS1 & ADDRESS0;
 EQUAL3 = !ADDRESS3 & !ADDRESS2 & ADDRESS1 & ADDRESS0;
 
 /* *************** ESTADOS *****************/
 
-Sequence [MCONTROLO0..1]{
+Sequence [MCONTROLO1..0]{
 
-Present 'b'0
-	if MICK & LnP & EQUAL9 # MICK & !LnP & EQUAL3 next 'b'1 ;
-	default next 'b'0 ;
-Present 'b'1
+Present 'b'00
+	if MICK & LnP & EQUAL9 # MICK & !LnP & EQUAL3 next 'b'01 ;
+	default next 'b'00 ;
+Present 'b'01
 	out DXVAL;
 	default next 'b'10;
 Present 'b'10
@@ -93,24 +93,24 @@ Present 'b'10
 
 /* *************** ESTADOS *****************/
 
-Sequence [MDISPATCHER0..1]{
+Sequence [MDISPATCHER1..0]{
 
-Present 'b'0
+Present 'b'00
 	out ACCEPT;
-	if DXVAL & LnP next 'b'1;
+	if DXVAL & LnP next 'b'01;
 	if DXVAL & !LnP & AnF & !PA next 'b'10;
 	if DXVAL & !LnP & !AnF & !PF next 'b'11;
-	default next 'b'0;
-Present 'b'1
+	default next 'b'00;
+Present 'b'01
 	out WrL;
-	default next 'b'0;	
+	default next 'b'00;	
 Present 'b'10
 	out AP;
-	if PA next 'b'0;
+	if PA next 'b'00;
 	default next 'b'10;	
 Present 'b'11
 	out FP;
-	if PF next 'b'0;
+	if PF next 'b'00;
 	default next 'b'11;	
 	
 }
