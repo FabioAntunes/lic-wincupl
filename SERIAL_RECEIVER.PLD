@@ -12,10 +12,10 @@ Device   v750c ;
 PIN 1 = MCLK;
 PIN 2 = MICK;
 PIN 3 = MIXD;
-PIN 4 = PA;
-PIN 5 = PF;
-PIN 6 = LnP;
-PIN 7 = AnF;
+PIN 4 = LnP;
+PIN 5 = AnF;
+PIN 6 = PA;
+PIN 7 = PF;
 
 /* *************** OUTPUT PINS ********************/
 PIN 14 = DXVAL;
