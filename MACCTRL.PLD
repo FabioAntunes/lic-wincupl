@@ -1,0 +1,67 @@
+Name     MACCTRL ;
+PartNo   00 ;
+Date     29/05/2015 ;
+Revision 01 ;
+Designer Engineer ;
+Company  CCISEL ;
+Assembly None ;
+Location  ;
+Device   v750c ;
+
+/**************** INPUT PINS  ********************/
+PIN 1 = MCLK;
+PIN 2 = DAV;
+PIN 3 = RDMEM;
+
+/**************** OUTPUT PINS ********************/
+PIN [14..16] = [A0..A3];
+PIN 17 = !nRD;
+PIN 18 = !nRW;
+PIN 19 = !BIC;
+
+/***************** PIN NODES  *******************/
+PINNODE [26..28]  = [P0..2];
+PINNODE [29..31]  = [G0..2];
+PINNODE 33  = FoE;
+PINNODE 33  = FoE;
+
+
+/* *********** Modulo Contador GET *****************/
+[G0..3].sp = 'b'0;
+[G0..3].ar = 'b'0;
+[G0..3].ck = GET;
+
+
+G0.d = 'b'1 $ G0;
+G1.d = G0 $ G1;
+G2.d = G0 & G1 $ G2;
+
+/************ Modulo Contador PUT *****************/
+[P0..3].sp = 'b'0;
+[P0..3].ar = 'b'0;
+[P0..3].ck = PUT;
+
+
+P0.d = 'b'1 $ P0;
+P1.d = P0 $ P1;
+P2.d = P0 & P1 $ P2;
+
+/************ MULTIPLEXER *****************/
+A0 = GET & G0 # !GET & P0;
+A1 = GET & G1 # !GET & P1;
+A2 = GET & G2 # !GET & P2;
+
+/* *********** Modulo FULL or EMPTY *****************/
+FoE.sp = 'b'0;
+FoE.ar = GET;
+FoE.ck = PUT;
+
+FoE.d = b'1';
+
+ANDXOR = !(g0 $ p0) & !(g1 $ p1) & !(g2 $ p2);
+FULL = FoE & ANDXOR;
+EMPTY = !FoE & ANDXOR;
+
+/************ Modulo CTRL *****************/
+
+
