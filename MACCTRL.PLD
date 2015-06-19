@@ -11,20 +11,23 @@ Device   v750c ;
 /**************** INPUT PINS  ********************/
 PIN 1 = MCLK;
 PIN 2 = DAV;
-PIN 3 = RDMEM;
+PIN 3 = ACK;
 
 /**************** OUTPUT PINS ********************/
-PIN [14..16] = [A0..A3];
+PIN [14..16] = [A0..A2];
 PIN 17 = !nRD;
-PIN 18 = !nRW;
-PIN 19 = !BIC;
+PIN 19 = !nRW;
+PIN 23 = FoE;
+PIN 20 = DACK;
+PIN 21 = OBF;
+PIN 22 = BIC;
+PIN 18 = ANDXOR;
 
 /***************** PIN NODES  *******************/
-PINNODE [26..28]  = [P0..2];
-PINNODE [29..31]  = [G0..2];
-PINNODE 33  = FoE;
-PINNODE 33  = FoE;
-
+PINNODE [31..33]  = [P0..2];
+PINNODE [28..30]  = [CTRL0..2];
+PINNODE [25..27]  = [G0..2];
+PINNODE 34  = MOBF ;
 
 /* *********** Modulo Contador GET *****************/
 [G0..3].sp = 'b'0;
@@ -56,12 +59,64 @@ FoE.sp = 'b'0;
 FoE.ar = GET;
 FoE.ck = PUT;
 
-FoE.d = b'1';
+FoE.d = 'b'1;
 
-ANDXOR = !(g0 $ p0) & !(g1 $ p1) & !(g2 $ p2);
+ANDXOR = !(G0 $ P0) & !(G1 $ P1) & !(G2 $ P2);
 FULL = FoE & ANDXOR;
 EMPTY = !FoE & ANDXOR;
 
 /************ Modulo CTRL *****************/
+[CTRL0..2].sp = 'b'0;
+[CTRL0..2].ar = 'b'0;
+[CTRL0..2].ck = MCLK;
 
+/* *************** ESTADOS *****************/
 
+Sequence [CTRL2..0]{
+
+Present 'b'000
+	if DAV & FULL & TxReady & !EMPTY next 'b'001;
+	if DAV & !FULL & EMPTY & !OBF next 'b'011;
+	if DAV & !FULL & !EMPTY next 'b'101;
+	default next 'b'000;
+Present 'b'001
+	out GET, nRd;
+	default next 'b'011;
+Present 'b'011
+	out GET, nRd, WrReg;
+	default next 'b'000;
+Present 'b'010
+	out BIC;
+	default next 'b'100;
+Present 'b'100
+	out WrReg, BIC;
+	default next 'b'111;	
+Present 'b'101
+	out BIC, PUT;
+	default next 'b'110;	
+Present 'b'110
+	out nRw, BIC;
+	default next 'b'111;
+Present 'b'111
+	out DACK;
+	if DAV next 'b'111;
+	default next 'b'000;	
+}
+
+/************ Modulo MOBF *****************/
+MOBF .sp = 'b'0;
+MOBF .ar = 'b'0;
+MOBF .ck = MCLK;
+
+/* *************** ESTADOS *****************/
+
+Sequence MOBF {
+
+Present 'b'0
+	if !ACK & WrReg next 'b'1;
+	if ACK OUT TxReady;
+	default next 'b'0;
+Present 'b'1
+	out OBF;
+	default next 'b'1;
+}
