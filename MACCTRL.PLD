@@ -16,18 +16,18 @@ PIN 3 = ACK;
 /**************** OUTPUT PINS ********************/
 PIN [14..16] = [A0..A2];
 PIN 17 = !nRD;
+PIN 18 = ANDXOR;
 PIN 19 = !nRW;
-PIN 23 = FoE;
 PIN 20 = DACK;
 PIN 21 = OBF;
 PIN 22 = BIC;
-PIN 18 = ANDXOR;
+PIN 23 = TxReady;
 
 /***************** PIN NODES  *******************/
 PINNODE [31..33]  = [P0..2];
 PINNODE [28..30]  = [CTRL0..2];
 PINNODE [25..27]  = [G0..2];
-PINNODE 34  = MOBF ;
+PINNODE 34  = FoE;
 
 /* *********** Modulo Contador GET *****************/
 [G0..3].sp = 'b'0;
@@ -75,9 +75,9 @@ EMPTY = !FoE & ANDXOR;
 Sequence [CTRL2..0]{
 
 Present 'b'000
-	if DAV & FULL & TxReady & !EMPTY next 'b'001;
-	if DAV & !FULL & EMPTY & !OBF next 'b'011;
-	if DAV & !FULL & !EMPTY next 'b'101;
+	if DAV & FULL & !TxReady & !EMPTY # !DAV & !TxReady & !EMPTY next 'b'001;
+	if DAV & !FULL & EMPTY & !TxReady next 'b'010;
+	if DAV & !FULL & !EMPTY # DAV & !FULL & EMPTY & TxReady next 'b'101;
 	default next 'b'000;
 Present 'b'001
 	out GET, nRd;
@@ -104,19 +104,18 @@ Present 'b'111
 }
 
 /************ Modulo MOBF *****************/
-MOBF .sp = 'b'0;
-MOBF .ar = 'b'0;
-MOBF .ck = MCLK;
+OBF .sp = 'b'0;
+OBF .ar = 'b'0;
+OBF .ck = MCLK;
 
 /* *************** ESTADOS *****************/
 
-Sequence MOBF {
+Sequence OBF {
 
 Present 'b'0
 	if !ACK & WrReg next 'b'1;
 	if ACK OUT TxReady;
 	default next 'b'0;
 Present 'b'1
-	out OBF;
 	default next 'b'1;
 }
