@@ -15,19 +15,21 @@ PIN 3 = ACK;
 
 /**************** OUTPUT PINS ********************/
 PIN [14..16] = [A0..A2];
-PIN 17 = !nRD;
-PIN 18 = ANDXOR;
+PIN 17 = ANDXOR;
+PIN 18 = CTRL0;
 PIN 19 = !nRW;
 PIN 20 = DACK;
 PIN 21 = OBF;
 PIN 22 = BIC;
-PIN 23 = TxReady;
+PIN 23 = !nRD;
+
 
 /***************** PIN NODES  *******************/
-PINNODE [31..33]  = [P0..2];
-PINNODE [28..30]  = [CTRL0..2];
 PINNODE [25..27]  = [G0..2];
-PINNODE 34  = FoE;
+PINNODE 28 = FoE;
+PINNODE [30..31]  = [CTRL1..2];
+PINNODE [32..34]  = [P0..2];
+
 
 /* *********** Modulo Contador GET *****************/
 [G0..3].sp = 'b'0;
@@ -59,11 +61,20 @@ FoE.sp = 'b'0;
 FoE.ar = GET;
 FoE.ck = PUT;
 
-FoE.d = 'b'1;
+
 
 ANDXOR = !(G0 $ P0) & !(G1 $ P1) & !(G2 $ P2);
-FULL = FoE & ANDXOR;
-EMPTY = !FoE & ANDXOR;
+
+
+Sequence FoE{
+
+Present 'b'0
+	if ANDXOR OUT EMPTY;
+	default next 'b'1;
+Present 'b'1
+	if ANDXOR OUT FULL;
+	default next 'b'1;
+}
 
 /************ Modulo CTRL *****************/
 [CTRL0..2].sp = 'b'0;
@@ -75,9 +86,9 @@ EMPTY = !FoE & ANDXOR;
 Sequence [CTRL2..0]{
 
 Present 'b'000
-	if DAV & FULL & !TxReady & !EMPTY # !DAV & !TxReady & !EMPTY next 'b'001;
-	if DAV & !FULL & EMPTY & !TxReady next 'b'010;
-	if DAV & !FULL & !EMPTY # DAV & !FULL & EMPTY & TxReady next 'b'101;
+	if DAV & FULL & TxReady & !EMPTY # !DAV & TxReady & !EMPTY next 'b'001;
+	if DAV & !FULL & EMPTY & TxReady next 'b'101;
+	if DAV & !FULL & !EMPTY # DAV & !FULL & EMPTY & !TxReady next 'b'110;
 	default next 'b'000;
 Present 'b'001
 	out GET, nRd;
@@ -85,21 +96,21 @@ Present 'b'001
 Present 'b'011
 	out GET, nRd, WrReg;
 	default next 'b'000;
-Present 'b'010
+Present 'b'101
 	out BIC;
 	default next 'b'100;
 Present 'b'100
 	out WrReg, BIC;
-	default next 'b'111;	
-Present 'b'101
-	out BIC, PUT;
-	default next 'b'110;	
+	default next 'b'010;	
 Present 'b'110
-	out nRw, BIC;
-	default next 'b'111;
+	out BIC, PUT;
+	default next 'b'111;	
 Present 'b'111
+	out nRw, BIC, PUT;
+	default next 'b'010;
+Present 'b'010
 	out DACK;
-	if DAV next 'b'111;
+	if DAV next 'b'010;
 	default next 'b'000;	
 }
 
@@ -113,9 +124,10 @@ OBF .ck = MCLK;
 Sequence OBF {
 
 Present 'b'0
-	if !ACK & WrReg next 'b'1;
-	if ACK OUT TxReady;
-	default next 'b'0;
+	if !WrReg next 'b'0;
+	if !ACK OUT TxReady;
+	default next 'b'1;
 Present 'b'1
+	if ACK next 'b'0;
 	default next 'b'1;
 }
