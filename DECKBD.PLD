@@ -30,6 +30,7 @@ PINNODE [28,29]    = [X0,X1];
 [K0..3].sp = 'b'0;
 [K0..3].ar = 'b'0;
 [K0..3].ck = CLK;
+[K0..3].oe = K_OE;
 
 CE = K_SCAN;
 

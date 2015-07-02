@@ -16,8 +16,8 @@ PIN 3 = ACK;
 /**************** OUTPUT PINS ********************/
 PIN [14..16] = [A0..A2];
 PIN 17 = ANDXOR;
-PIN 18 = CTRL0;
-PIN 19 = !nRW;
+PIN 18 = WrReg;
+PIN 19 = !nWR;
 PIN 20 = DACK;
 PIN 21 = OBF;
 PIN 22 = BIC;
@@ -27,7 +27,7 @@ PIN 23 = !nRD;
 /***************** PIN NODES  *******************/
 PINNODE [25..27]  = [G0..2];
 PINNODE 28 = FoE;
-PINNODE [30..31]  = [CTRL1..2];
+PINNODE [29..31]  = [CTRL0..2];
 PINNODE [32..34]  = [P0..2];
 
 
@@ -91,10 +91,10 @@ Present 'b'000
 	if DAV & !FULL & !EMPTY # DAV & !FULL & EMPTY & !TxReady next 'b'110;
 	default next 'b'000;
 Present 'b'001
-	out GET, nRd;
+	out GET, nRD;
 	default next 'b'011;
 Present 'b'011
-	out GET, nRd, WrReg;
+	out GET, nRD, WrReg;
 	default next 'b'000;
 Present 'b'101
 	out BIC;
@@ -106,7 +106,7 @@ Present 'b'110
 	out BIC, PUT;
 	default next 'b'111;	
 Present 'b'111
-	out nRw, BIC, PUT;
+	out nWR, BIC, PUT;
 	default next 'b'010;
 Present 'b'010
 	out DACK;
