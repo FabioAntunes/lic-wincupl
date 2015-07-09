@@ -61,6 +61,8 @@ FoE.sp = 'b'0;
 FoE.ar = GET;
 FoE.ck = PUT;
 
+FoE.d = 'b'1;
+
 
 
 ANDXOR = !(G0 $ P0) & !(G1 $ P1) & !(G2 $ P2);
@@ -70,7 +72,7 @@ Sequence FoE{
 
 Present 'b'0
 	if ANDXOR OUT EMPTY;
-	default next 'b'1;
+	default next 'b'0;
 Present 'b'1
 	if ANDXOR OUT FULL;
 	default next 'b'1;
