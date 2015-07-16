@@ -52,7 +52,7 @@ Dec3 = Dec_S0 & Dec_S1;
 [COL0..COL3] = ![Dec0..Dec3];
 
 /* *************** Encoder **********************/
-keypress = !(Mux0 & !Mux_S0 & !Mux_S1 # Mux1 & Mux_S0 & !Mux_S1 # Mux2 & !Mux_S0 & Mux_S1 # Mux_S0 & Mux_S1);
+keypress = !(Mux0 & !Mux_S0 & !Mux_S1 # Mux1 & Mux_S0 & !Mux_S1 # Mux2 & !Mux_S0 & Mux_S1 # Mux3 & Mux_S0 & Mux_S1);
 
 /***** Estados ****/
 
